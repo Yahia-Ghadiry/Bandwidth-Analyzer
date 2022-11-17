@@ -1,0 +1,39 @@
+{
+
+    "manifest_version": 2,
+    "name": "PacketTrainer",
+    "version": "1.0",
+  
+    "description": "Adds a red border to all webpages matching mozilla.org.",
+  
+    "icons": {
+      "48": "icons/border-48.png"
+    },
+  
+    "content_scripts": [
+      {
+        "matches": ["<all_urls>"],
+        "js": ["borderify.js"]
+      }
+    ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+
+
+    "permissions": [
+      "dns",
+      "menus",
+      "privacy",
+      "storage",
+      "tabs",
+      "unlimitedStorage",
+      "webNavigation",
+      "webRequest",
+      "webRequestBlocking",
+      "<all_urls>"
+    ]
+  
+  }
+  

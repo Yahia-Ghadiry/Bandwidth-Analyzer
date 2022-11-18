@@ -31,7 +31,6 @@
       "unlimitedStorage",
       "webNavigation",
       "webRequest",
-      "webRequestBlocking",
       "<all_urls>"
     ]
   

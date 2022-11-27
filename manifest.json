@@ -1,7 +1,7 @@
 {
 
     "manifest_version": 2,
-    "name": "PacketTrainer",
+    "name": "BandwidthAnalizer",
     "version": "1.0",
   
     "description": "Adds a red border to all webpages matching mozilla.org.",
@@ -13,23 +13,18 @@
     "content_scripts": [
       {
         "matches": ["<all_urls>"],
-        "js": ["borderify.js"]
+        "js": ["content_scripts/borderify.js"]
       }
     ],
 
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["background/background.js"]
   },
 
 
     "permissions": [
-      "dns",
-      "menus",
-      "privacy",
       "storage",
-      "tabs",
       "unlimitedStorage",
-      "webNavigation",
       "webRequest",
       "<all_urls>"
     ]

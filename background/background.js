@@ -2,22 +2,30 @@
 function format(requestDetails)
 {
     let formatedRecord = {};
-    formatedRecord["time_stamp"] = requestDetails["timeStamp"];
-    formatedRecord["reques_size"] = requestDetails["requestSize"];
+    formatedRecord["request_size"] = requestDetails["requestSize"];
     formatedRecord["response_size"] = requestDetails["responseSize"];
     formatedRecord["domain"] = (new URL(requestDetails["originUrl"])).hostname;
+    
+    // TODO: Think of using UTC timing instead  
 
     // Formating the date so it's easily searchable
+    formatedRecord["time"] = {};
     let date = new Date(requestDetails["timeStamp"]);
-    formatedRecord["year"] = date.getFullYear();
-    formatedRecord["month"] =   date.getMonth();
-    formatedRecord["day"] = date.getDate();
-    formatedRecord["hour"] = date.getHours();
-    formatedRecord["minute"] = 5 * Math.round(date.getMinutes() / 5);
-    formatedRecord["week_day"] =  date.getDay();
-
+    formatedRecord["time"]["year"] = date.getFullYear();
+    formatedRecord["time"]["month"] =   date.getMonth();
+    formatedRecord["time"]["week_day"] =  date.getDay();
+    formatedRecord["time"]["day"] = date.getDate();
+    formatedRecord["time"]["hour"] = date.getHours();
+    formatedRecord["time"]["minute"] = 5 * Math.round(date.getMinutes() / 5);
+    formatedRecord["time"]["hash"] = formatedRecord["time"]["year"].toString() +
+        formatedRecord["time"]["month"].toString() + 
+        formatedRecord["time"]["week_day"].toString() + 
+        formatedRecord["time"]["day"].toString() + 
+        formatedRecord["time"]["hour"].toString() + 
+        formatedRecord["time"]["minute"].toString();
     return formatedRecord;
 }
+
 
 const indexedDB = window.indexedDB;
      
@@ -30,10 +38,10 @@ request.onerror = (event) =>
 request.onupgradeneeded = () => 
 {
     const db = request.result;
-    const store = db.createObjectStore("record", {keyPath: "time_stamp"});
-    // store.createIndex("method", "method", {unique: false});
-    // store.createIndex("type", "type", {unique: false});
-    // store.createIndex("ip", "ip", {unique: false});
+    const store = db.createObjectStore("record", {keyPath: 'id', autoIncrement: true});
+
+    // usefull later when tring to know usage for certain website
+    store.createIndex("domain_and_time", ["domain", "time.hash"], {unique: false});
     
     //  TODO: need better inexing
 };
@@ -43,84 +51,41 @@ request.onsuccess = (event) =>
 
     // Setting up conection to database
     const db = request.result;
-    // const methodIndex = store.index("method");
-    // const ipIndex = store.index("ip");
-
+    
     // Capture requests/response data
     function storeData(requestDetails) 
     {    
-        console.log(format(requestDetails));
 
         if (requestDetails.requestSize != 0 || requestDetails.responseSize !=0)
         {  
             const formated = format(requestDetails);
-            console.log(format(requestDetails));
             const transaction = db.transaction("record", "readwrite")
             const store = transaction.objectStore("record");
-            store.add(formated);
+            const DTIndex = store.index("domain_and_time");
+            // Checks if recored of same domain near same time (5 min) is there if so updates it and doesn't make a new one 
+            let checkifexist = DTIndex.get([formated.domain, formated.time.hash]);
+            checkifexist.onsuccess = () =>
+            {
+                if (checkifexist.result)
+                {
+                    result = checkifexist.result
+                    result.request_size += formated["request_size"];
+                    result.response_size += formated["response_size"];
+                    store.put(result);
+                }
+                else
+                {
+                    store.add(formated); 
+                    console.log("doesnt'");
+                   
+                }
+            }
+
 
         }
     }
 
     browser.webRequest.onCompleted.addListener(
         storeData, {urls: ["<all_urls>"]},["responseHeaders"]
-    );
-
-    // setInterval(() =>
-    // {
-    //     let methodQuery = methodIndex.getAll("GET");    
-    //     methodQuery.onsuccess = () =>
-    //     {
-    //         console.log("idQuery", methodQuery.result);
-    //     };
-    // }
-    // , 1000);
-
-    // transaction.oncomplete = () =>
-    // {
-    //     db.close;
-    // };
-    
+    );    
 };
-
-
-
-
-
-
-
-// const dbName = "BWUsageLog";
-
-// const request = indexedDB.open(dbName, 2);
-// const customerData = [
-//     { ssn: "444-44-4444", name: "Bill", age: 35, email: "bill@company.com" },
-//     { ssn: "555-55-5555", name: "Donna", age: 32, email: "donna@home.org" }
-//   ];
-// request.onerror = (event) => {
-//   // Handle errors.
-// };
-// request.onupgradeneeded = (event) => {
-//   const db = event.target.result;
-
-//   // Create an objectStore to hold information about our customers. We're
-//   // going to use "ssn" as our key path because it's guaranteed to be
-//   // unique - or at least that's what I was told during the kickoff meeting.
-//   const objectStore = db.createObjectStore("customers", { keyPath: "ssn" });
-
-//   // Create an index to search customers by name. We may have duplicates
-//   // so we can't use a unique index.
-//   objectStore.createIndex("name", "name", { unique: false });
-
-//   // Create an index to search customers by email. We want to ensure that
-//   // no two customers have the same email, so use a unique index.
-//   objectStore.createIndex("email", "email", { unique: true });
-
-//   // Use transaction oncomplete to make sure the objectStore creation is
-//   // finished before adding data into it.
-//   objectStore.transaction.oncomplete = (event) => {
-//     // Store values in the newly created objectStore.
-//     const customerObjectStore = db.transaction("customers", "readwrite").objectStore("customers");
-//     customerData.forEach((customer) => {
-//       customerObjectStore.add(customer);
-//     });
-//   };

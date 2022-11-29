@@ -1,0 +1,59 @@
+/* TODO: add style */
+body
+{
+    width: 500px;
+    margin: 0;
+}
+.graph
+{
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.5em;
+
+}
+.info
+{
+    display: flex;
+    width: 100%;
+}
+.info *
+{
+    display: flex;
+}
+div.bar
+{
+    box-sizing: border-box;
+    display: block;
+    padding-left: 1em;
+    width: 100%;
+}
+
+div.usage
+{
+    display: inline-block;
+    text-align: center;
+    background-color: lightseagreen;
+}
+
+.info div.interval
+{
+    width: 4em;
+}
+
+.average
+{
+    
+    padding: 0;
+    position: relative;
+    top: -25px;
+    left: -1px;
+    z-index: 1;
+    height: 27px;
+    border-right: 2px solid purple;
+
+}
+.point
+{
+    height: 0;
+    width: 0;
+}

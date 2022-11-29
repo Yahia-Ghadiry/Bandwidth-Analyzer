@@ -1,0 +1,56 @@
+<!-- 
+    The pop up html which displays month and day usage respect to maxmimum in a bar graph 
+    also including an average  
+ -->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="popup.css">
+        <title title="Usage">Usage</title>
+        
+    </head>
+    
+    <body>
+        <div class="graph">
+            <div class="info">
+                <div class="interval">
+                    Month: 
+                </div>
+          <!-- max width 410
+        to move slider subtract one from it
+        100% is the maximum usage in last year/ day -->
+                <div class="bar">
+                    <div id="monthUsage" class="usage"  style="width: 100px;">
+                        10GB
+                    </div>
+                    <div class="point">
+                        <div class="average" style="width: 50px;">
+                    </div>
+                        </div>
+                </div>
+
+            </div>
+            <div class="ratings">
+            </div>
+        </div>        
+        <div class="graph">
+            <div class="info">
+                <div class="interval">
+                    Today: 
+                </div>            
+                <div class="bar">
+                    <div id="dayUsage" class="usage" style="width: 85%;">
+                        110KB
+                    </div>
+                </div>
+            </div>
+            <div class="ratings">
+            </div>
+        </div>
+        <!-- TODO: add button to get detailed info -->
+        <script href="popup.js"></script>
+    </body>
+</html>

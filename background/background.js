@@ -1,3 +1,7 @@
+// This is the background script of the addon
+// mainly used for sotring usage in an orgized manner
+// so that it is easily acessed later on
+
 // intervals of saved data
 const intervals = ["year", "month", "week_day", "day", "hour"] 
 
@@ -42,6 +46,10 @@ function format(requestDetails)
     const day = date.getDate().toString();
     const hour = date.getHours().toString();
     
+
+    // TODO: add a way to change month beging
+    // maybe add a new store where it has only 
+    // months and records based on a change
     formatedRecord["time"]["year"] = year;
     formatedRecord["time"]["month"] = year + month;
     formatedRecord["time"]["week_day"] = year + month + week_day;
@@ -130,6 +138,3 @@ request.onsuccess = (event) =>
         storeData, {urls: ["<all_urls>"]},["responseHeaders"]
     );
 };
-
-
-// TODO: add a way to display information

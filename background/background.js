@@ -36,13 +36,13 @@ function format(requestDetails)
     formatedRecord["response_size"] = requestDetails["responseSize"];
         
     formatedRecord["domain"] = findOrginOfFrame(requestDetails)
-    // console.log(formatedRecord["domain"], requestDetails)
     // Formating the date so it's easily searchable
     formatedRecord["time"] = {};
-    let date = new Date(requestDetails["timeStamp"]);
+    const date = new Date(requestDetails["timeStamp"]);
     const year = date.getFullYear().toString();
-    const month =   date.getMonth().toString();
-    const week_day =  date.getDay().toString();
+    // tmprearru to simulate privase day usage
+    const month = date.getMonth().toString();
+    const week_day = date.getDay().toString();
     const day = date.getDate().toString();
     const hour = date.getHours().toString();
     
@@ -50,6 +50,7 @@ function format(requestDetails)
     // TODO: add a way to change month beging
     // maybe add a new store where it has only 
     // months and records based on a change
+    
     formatedRecord["time"]["year"] = year;
     formatedRecord["time"]["month"] = year + month;
     formatedRecord["time"]["week_day"] = year + month + week_day;
@@ -74,19 +75,16 @@ request.onerror = (event) =>
 request.onupgradeneeded = () => 
 {
     const db = request.result;
-    const yStore = db.createObjectStore("year", {keyPath: 'id', autoIncrement: true});
-    const mStore = db.createObjectStore("month", {keyPath: 'id', autoIncrement: true});
-    const wStore = db.createObjectStore("week_day", {keyPath: 'id', autoIncrement: true});
-    const dStore = db.createObjectStore("day", {keyPath: 'id', autoIncrement: true});
-    const hStore = db.createObjectStore("hour", {keyPath: 'id', autoIncrement: true});
-    const stores = [yStore, mStore, wStore, dStore, hStore]
-    
-    stores.forEach((store, index, stores) => 
-    {
+    let stores = [];
+    // TODO: check if this works
+    intervals.forEach((interval, index) =>
+    {   
+        // Creats store for each interval
+        stores[index] = db.createObjectStore(interval, {keyPath: 'id', autoIncrement: true});
         // For checking if stored same domain and time 
-        store.createIndex("domain_and_" + intervals[index], ["domain", "time." + intervals[index]], {unique: false});
+        stores[index].createIndex("domain_and_" + interval, ["domain", "time." + interval], {unique: false});
         // For getting total in a peroid
-        store.createIndex(intervals[index], "time." + intervals[index], {unique: false});
+        stores[index].createIndex(interval, "time." + interval, {unique: false});
     });
     
 };
@@ -106,14 +104,14 @@ request.onsuccess = (event) =>
         if (requestDetails.requestSize != 0 || requestDetails.responseSize !=0)
         {  
             const formated = format(requestDetails);
-            intervals.forEach((interval, index, intervals) =>
+            intervals.forEach(interval =>
             {
             
                 const transaction = db.transaction(interval, "readwrite")
                 const store = transaction.objectStore(interval);
-                const DTIndex = store.index("domain_and_" + interval);
+                const domainIntervalIndex = store.index("domain_and_" + interval);
                 // Checks if recored of same domain near same time (5 min) is there if so updates it and doesn't make a new one 
-                let checkifexist = DTIndex.get([formated.domain, formated["time"][interval]]);
+                let checkifexist = domainIntervalIndex.get([formated.domain, formated["time"][interval]]);
                 checkifexist.onsuccess = () =>
                 {
                     if (checkifexist.result)

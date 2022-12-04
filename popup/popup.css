@@ -1,4 +1,10 @@
-/* TODO: add style */
+html, body 
+{
+    margin: 0;
+    height: 100%;
+    overflow: hidden
+}
+
 body
 {
     width: 500px;
@@ -16,7 +22,7 @@ body
     display: flex;
     width: 100%;
 }
-.info *
+.info > *
 {
     display: flex;
 }
@@ -50,10 +56,31 @@ div.usage
     z-index: 1;
     height: 27px;
     border-right: 2px solid purple;
-
+    display: inline-block;
 }
 .point
 {
     height: 0;
     width: 0;
+}
+.graph_keys
+{
+    display : flex;
+    align-items : center;
+    padding-left: 5em;
+}
+.graph_key
+{
+
+  height: 0.75em;
+  width: 0.75em;
+  margin : 0 5px;
+}
+.total_color
+{
+    background-color: lightseagreen;
+}
+.average_color
+{
+    background-color: purple;
 }

@@ -4,32 +4,34 @@
   "name": "BandwidthAnalizer",
   "version": "1.0",
 
-  "description": "Adds a red border to all webpages matching mozilla.org.",
+  "description": "TODO.",
 
-  "icons": {
-    "48": "icons/border-48.png"
+  "icons":
+  {
+      "48": "icons/border-48.png"
   },
 
 
-  "browser_action": {
-    "default_icon": "icons/border-48.png",
-    "default_title": "Usage",
-    "default_popup": "popup/popup.html"
+  "browser_action":
+  {
+      "default_icon": "icons/border-48.png",
+      "default_title": "Usage",
+      "default_popup": "popup/popup.html"
   },
 
 
-  "background": {
-    "scripts": ["background/background.js"]
+  "background":
+  {
+      "scripts": ["src/dexie.js", "background/background.js"]
   },
 
 
   "permissions": [
-    "tabs",
-    "storage",
-    "unlimitedStorage",
-    "webRequest",
-    "<all_urls>"
+      "tabs",
+      "storage",
+      "unlimitedStorage",
+      "webRequest",
+      "<all_urls>"
   ]
-  
-  }
-  
+
+}

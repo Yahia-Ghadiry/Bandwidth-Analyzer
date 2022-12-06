@@ -1,4 +1,4 @@
-const intervals = ["year", "month", "week_day", "day", "hour"]
+const intervals = ["year", "month", "week_day", "day", "hour"];
 
 
 // recursive function so all usage from a frames of a website will be added to same url not to the frame's
@@ -55,7 +55,7 @@ function format(requestDetails)
 }
 
 
-var db = new Dexie('hrlp');
+var db = new Dexie('Usage');
 
 db.version(1).stores(
 {
@@ -65,13 +65,8 @@ db.version(1).stores(
     day: '++id, time.day, [domain+time.day]',
     hour: '++id, time.hour, [domain+time.hour]'
 });
+
 const tables = [db.year, db.month, db.week_day, db.day, db.hour];
-db.month.bulkPut([
-    {domain: "Josephine", time: {month: 21}, name: "Per", age: 75 },
-    {name: "Per", age: 75 },
-  ])
-
-
 // Stores all trafic/usage
 async function storeData(requestDetails)
 {
@@ -81,21 +76,17 @@ async function storeData(requestDetails)
         const formated = format(requestDetails);
         tables.forEach(async (table, index) =>
         {
-
-
             // Checks if recored of same domain near same time (5 min) is there if so updates it and doesn't make a new one 
             const checkifexist = await table.where(["domain", "time."+ intervals[index]]).equals([formated.domain, formated["time"][intervals[index]]]).first();
             if (checkifexist)
             {
                 checkifexist.request_size += formated["request_size"];
                 checkifexist.response_size += formated["response_size"];
-                await table.put(checkifexist);
-                console.log("found");
+                await table.put(checkifexist, checkifexist.id);
             }
             else
             {
                 await table.add(formated);
-                console.log("not found");
             }
             
         });

@@ -3,8 +3,8 @@
   "manifest_version": 2,
   "name": "BandwidthAnalizer",
   "version": "1.0",
-
-  "description": "TODO.",
+  "homepage_url":"https://noneYet.com",
+  "description": "A tool that helps you analize used data to help you not exceed your monthly data cap",
 
   "icons":
   {
@@ -14,15 +14,15 @@
 
   "browser_action":
   {
-      "default_icon": "icons/border-48.png",
-      "default_title": "Usage",
-      "default_popup": "popup/popup.html"
+      "default_icon": "icons/tmp.png",
+      "default_title": "Data Usage Analizer",
+      "default_popup": "/popup/popup.html"
   },
 
 
   "background":
   {
-      "scripts": ["src/dexie.js", "background/background.js"]
+      "scripts": ["/src/dexie.js", "/background/background.js"]
   },
 
 

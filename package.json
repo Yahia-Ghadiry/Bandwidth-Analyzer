@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "chart.js": "^4.0.1",
+    "dexie": "^3.2.2"
+  }
+}

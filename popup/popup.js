@@ -21,6 +21,10 @@ function totalUsed(records)
     return total;
 }
 
+function toTwodigits(n){
+    return n > 9 ? "" + n: "0" + n;
+}
+
 // Converts number of bytes to number of KB, MB, etc ..  accordingly
 function formateBytes(bytes)
 {
@@ -68,16 +72,14 @@ function changeBasicBarGraph(totalUsage, averageUsage, maxUsage)
 }
 
 // Recrusive function to find average and maxmimum value in giving time intervals 
-async function averageAndMaximumIntervals(intervals, table_name, table, currentsum = 0, maximum = 0, summed = 0)
+async function averageAndMaximumIntervals(intervals, table_name, table)
 {
-    const size = intervals.length; 
-    if (size == 0)
-    {   
-        return [currentsum / (summed == 0 ? 1 : summed), maximum];
-    }
-    else
+    let currentsum = 0;
+    let maximum = 0;
+    let summed = 0;
+    for(let i = 0; i < intervals.length ; i++)
     {
-        const getrecoreds = await table.where("time." + table_name).equals(intervals[0]).toArray();
+        const getrecoreds = await table.where("time." + table_name).equals(intervals[i]).toArray();
         if (!getrecoreds[0])
         {
             return [currentsum / (summed == 0 ? 1 : summed), maximum];
@@ -88,15 +90,16 @@ async function averageAndMaximumIntervals(intervals, table_name, table, currents
         {
             maximum = total;
         }
-        intervals.shift();
-        return await averageAndMaximumIntervals(intervals, table_name, table, currentsum, maximum, summed + 1);
+        summed += 1;
         
     }
+    return [currentsum / (summed == 0 ? 1 : summed), maximum];
+
 }
 
 document.getElementById("show_detailed").onclick = () =>
 {
-    browser.tabs.create({url: "/detailed/detailed.htm"});
+    browser.tabs.create({url: "/detailed/detailed.html"});
 };
 
 // gets all data neccsary for the popupbars
@@ -116,11 +119,11 @@ async function displayPopUp()
     const date = new Date();
 
     // Month bar
-    const thisMonth = date.getFullYear().toString() + date.getMonth().toString();
+    const thisMonth = date.getFullYear().toString() + toTwodigits(date.getMonth()).toString();
     // Previous month as the maximum
     const previouseMonthdate = new Date();
     previouseMonthdate.setMonth(date.getMonth() - 1);
-    const previousMonth = previouseMonthdate.getFullYear().toString() + previouseMonthdate.getMonth().toString();
+    const previousMonth = previouseMonthdate.getFullYear().toString() + toTwodigits(previouseMonthdate.getMonth()).toString();
 
     const monthUsage = totalUsed(await db.month.where("time.month").equals(thisMonth).toArray());
     const previuosMonthUsage = totalUsed(await db.month.where("time.month").equals(previousMonth).toArray());
@@ -150,9 +153,9 @@ async function displayPopUp()
         const dayDate = new Date();
         dayDate.setDate(date.getDate() - i)
         const year = dayDate.getFullYear().toString();
-        const month = dayDate.getMonth().toString();
+        const month = toTwodigits(dayDate.getMonth()).toString();
         const week_day = dayDate.getDay().toString();
-        const day = dayDate.getDate().toString();
+        const day = toTwodigits(dayDate.getDate()).toString();
         days[i] = year + month + week_day + day;
     }
 

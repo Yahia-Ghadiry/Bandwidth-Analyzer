@@ -8,13 +8,13 @@
 
   "icons":
   {
-      "48": "icons/border-48.png"
+      "48": "/icons/tmp.png"
   },
 
 
   "browser_action":
   {
-      "default_icon": "icons/tmp.png",
+      "default_icon": "/icons/tmp.png",
       "default_title": "Data Usage Analizer",
       "default_popup": "/popup/popup.html"
   },

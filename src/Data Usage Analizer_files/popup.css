@@ -30,8 +30,6 @@ div.bar
 {
     box-sizing: border-box;
     display: block;
-    height: 23px;
-    white-space: nowrap;;
     padding-left: 1em;
     width: 100%;
 }

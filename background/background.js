@@ -3,7 +3,7 @@ const intervals = ["year", "month", "day", "hour"];
 // recursive function so all usage from a frames of a website will be added to same url not to the frame's
 function findOrginOfFrame(requestDetails)
 {
-    if (requestDetails["frameId"])
+    if (requestDetails.frameId)
     {
         return findOrginOfFrame(requestDetails.frameAncestors[0]);
     }

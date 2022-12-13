@@ -324,14 +324,11 @@ async function createGraph()
         hour: '++id, time.hour, [domain+time.hour]'
     });
 
-
     let start_date = new Date();
-    // fix more than one in week day
+    
     const data = await geChartData(db.hour, "hour", 9, "detailed", start_date);
 
-
     const ctx = document.getElementById('myChart');
-
 
     const stackedBar = new Chart(ctx,
     {

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="Data%20Usage%20Analizer_files/popup.css">
+        <script src="Data%20Usage%20Analizer_files/dexie.js"></script>
+        <title>Data Usage Analizer</title>
+    </head>
+    <body>
+        <div class="graph">
+            <div class="info">
+                <div class="interval">
+                    Month: 
+                </div>
+                <div id="monthBar" class="bar">
+                    <div id="monthUsage" class="usage" style="width: 412px;">95.30 MB</div>
+                    <div class="point">
+                        <div id="monthAverage" class="average" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="graph">
+            <div class="info">
+                <div class="interval">
+                    Today: 
+                </div>
+                <div id="dayBar" class="bar">
+                    <div id="dayUsage" class="usage" style="width: 36.2103px;">95.27 MB</div>
+                    <div class="point">
+                        <div id="dayAverage" class="average" style="display: block; width: 223.105px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="graph_keys">
+            <div class="graph_key total_color"></div> Toatal usage 
+            <div class="graph_key average_color"></div> Average usage
+            <button id="show_detailed" type="button">Details</button>
+        </div>
+        <script src="Data%20Usage%20Analizer_files/popup.js"></script>
+    
+</body></html>

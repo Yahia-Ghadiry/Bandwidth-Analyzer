@@ -1,5 +1,5 @@
 # YOUR PROJECT TITLE
-#### Video Demo:  TODO
+#### Video Demo:  https://www.youtube.com/watch?v=cpV7uTdiLvQ
 #### Description:
 
 This addon tracks bandwidth usage, which is most helpful to those who live in internet-capped countries.

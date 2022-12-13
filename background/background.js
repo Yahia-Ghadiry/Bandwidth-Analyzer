@@ -1,4 +1,4 @@
-const intervals = ["year", "month", "week_day", "day", "hour"];
+const intervals = ["year", "month", "day", "hour"];
 // Format of date YYYYMMWDDHH
 // recursive function so all usage from a frames of a website will be added to same url not to the frame's
 function findOrginOfFrame(requestDetails)
@@ -61,12 +61,11 @@ async function storeData(requestDetails)
     {
         year: '++id, time.year, [domain+time.year]',
         month: '++id, time.month, [domain+time.month]',
-        week_day: '++id, time.week_day, [domain+time.week_day]',
         day: '++id, time.day, [domain+time.day]',
         hour: '++id, time.hour, [domain+time.hour]'
     });
 
-    const tables = [db.year, db.month, db.week_day, db.day, db.hour];
+    const tables = [db.year, db.month, db.day, db.hour];
 
     if (requestDetails.requestSize != 0 || requestDetails.responseSize != 0)
     {

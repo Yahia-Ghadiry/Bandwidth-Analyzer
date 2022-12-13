@@ -17,7 +17,7 @@ function toTwodigits(n)
     return n > 9 ? "" + n : "0" + n;
 }
 // Calculates total value of each day
-function totalUsed(records)
+function totalUsage(records)
 {
     let values = [];
     for (let i = 0; i < records.length; i++)
@@ -41,7 +41,7 @@ function totalUsed(records)
     return values.reverse()
 }
 // returns values and secondary labels for top3
-function depthUsed(records)
+function detailedUsage(records)
 {
     let domains = {};
     // Summs all 
@@ -212,12 +212,12 @@ function getValuesAndSecLabels(records, type)
 {
     if (type == "total")
     {
-        return [totalUsed(records), NaN];
+        return [totalUsage(records), NaN];
     }
-    else(type == "depth")
+    else(type == "detailed")
     {
 
-        return depthUsed(records);
+        return detailedUsage(records);
     }
 }
 
@@ -268,7 +268,7 @@ async function geChartData(table, format, n, type = "total", start_date = new Da
     const [values, secLabels] = getValuesAndSecLabels(records, type)
     const labels = getLabels(format, intervals);
     let data;
-    if (type == "depth")
+    if (type == "detailed")
     {
 
         data = {
@@ -320,7 +320,6 @@ async function createGraph()
     {
         year: '++id, time.year, [domain+time.year]',
         month: '++id, time.month, [domain+time.month]',
-        week_day: '++id, time.week_day, [domain+time.week_day]',
         day: '++id, time.day, [domain+time.day]',
         hour: '++id, time.hour, [domain+time.hour]'
     });
@@ -328,7 +327,7 @@ async function createGraph()
 
     let start_date = new Date();
     // fix more than one in week day
-    const data = await geChartData(db.day, "day", 9, "depth", start_date);
+    const data = await geChartData(db.day, "day", 9, "detailed", start_date);
 
 
     const ctx = document.getElementById('myChart');

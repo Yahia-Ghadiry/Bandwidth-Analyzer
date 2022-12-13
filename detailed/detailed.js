@@ -220,7 +220,7 @@ function getLabels(format, intervals) {
 }
 
 // Returns data for chart
-async function geChartData(table, format, n, type = "total", start_date = new Date()) {
+async function getChartData(table, format, n, type = "total", start_date = new Date()) {
     const table_name = (format == "week_day") ? "day" : format;
     const intervals = getIntervals(table_name, n, start_date);
     const records = await getRecords(table, table_name, intervals);
@@ -279,7 +279,7 @@ async function createGraph() {
 
     let start_date = new Date();
 
-    const data = await geChartData(db.hour, "hour", 9, "detailed", start_date);
+    const data = await getChartData(db.hour, "hour", 9, "detailed", start_date);
 
     const ctx = document.getElementById('myChart');
 

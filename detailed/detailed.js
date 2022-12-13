@@ -327,7 +327,7 @@ async function createGraph()
 
     let start_date = new Date();
     // fix more than one in week day
-    const data = await geChartData(db.month, "month", 9, "detailed", start_date);
+    const data = await geChartData(db.hour, "hour", 9, "detailed", start_date);
 
 
     const ctx = document.getElementById('myChart');

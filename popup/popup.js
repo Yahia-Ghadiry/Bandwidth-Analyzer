@@ -6,15 +6,12 @@
 const intervals = ["year", "month", "day", "hour"];
 
 // Retruns total usage for givin records  
-function totalUsed(records)
-{
-    if (!records)
-    {
+function totalUsed(records) {
+    if (!records) {
         return 0;
     }
     let total = 0;
-    records.forEach(record =>
-    {
+    records.forEach(record => {
         total += record.request_size;
         total += record.response_size;
     });
@@ -22,18 +19,15 @@ function totalUsed(records)
 }
 
 // Turns integer into a 2 charchter string 
-function toTwodigits(n)
-{
+function toTwodigits(n) {
     return n > 9 ? "" + n : "0" + n;
 }
 
 // Converts number of bytes to number of KB, MB, etc ..  accordingly
-function formatBytes(bytes)
-{
+function formatBytes(bytes) {
     const units = ["B", "KB", "MB", "GB", "TB", "PB"]
     let unitIndex = 0;
-    while (bytes >= 1024)
-    {
+    while (bytes >= 1024) {
         bytes /= 1024;
         unitIndex++;
     }
@@ -42,12 +36,10 @@ function formatBytes(bytes)
 }
 
 // does all calculations neccsary for basic bar graph 
-function changeBasicBarGraph(totalUsage, averageUsage, maxUsage)
-{
+function changeBasicBarGraph(totalUsage, averageUsage, maxUsage) {
 
     // Make's sure not to exceed 100%
-    if (maxUsage.usage < totalUsage.usage || maxUsage.usage < averageUsage.usage)
-    {
+    if (maxUsage.usage < totalUsage.usage || maxUsage.usage < averageUsage.usage) {
         maxUsage.usage = (totalUsage.usage > averageUsage.usage) ? totalUsage.usage : averageUsage.usage;
     }
     totalUsage.element = document.getElementById(totalUsage.id);
@@ -62,12 +54,9 @@ function changeBasicBarGraph(totalUsage, averageUsage, maxUsage)
 
     totalUsage.element.style.width = ((totalUsage.usage / maxUsage.usage) * barWidth).toString() + "px";
 
-    if (averageUsage.usage == 0)
-    {
+    if (averageUsage.usage == 0) {
         averageUsage.element.style.display = "none";
-    }
-    else
-    {
+    } else {
         // subtract one because border has width of 2px
         averageUsage.element.style.display = "block";
         averageUsage.element.style.width = ((averageUsage.usage / maxUsage.usage) * barWidth - 1).toString() + "px";
@@ -75,22 +64,18 @@ function changeBasicBarGraph(totalUsage, averageUsage, maxUsage)
 }
 
 // Recrusive function to find average and maxmimum value in giving time intervals 
-async function averageAndMaximumIntervals(intervals, table_name, table)
-{
+async function averageAndMaximumIntervals(intervals, table_name, table) {
     let currentsum = 0;
     let maximum = 0;
     let summed = 0;
-    for (let i = 0; i < intervals.length; i++)
-    {
+    for (let i = 0; i < intervals.length; i++) {
         const getrecoreds = await table.where("time." + table_name).equals(intervals[i]).toArray();
-        if (!getrecoreds[0])
-        {
+        if (!getrecoreds[0]) {
             return [currentsum / (summed == 0 ? 1 : summed), maximum];
         }
         const total = totalUsed(getrecoreds);
         currentsum += total;
-        if (total > maximum)
-        {
+        if (total > maximum) {
             maximum = total;
         }
         summed += 1;
@@ -100,20 +85,16 @@ async function averageAndMaximumIntervals(intervals, table_name, table)
 
 }
 
-document.getElementById("show_detailed").onclick = () =>
-{
-    browser.tabs.create(
-    {
+document.getElementById("show_detailed").onclick = () => {
+    browser.tabs.create({
         url: "/detailed/detailed.html"
     });
 };
 
 // gets all data neccsary for the popupbars
-async function displayPopUp()
-{
+async function displayPopUp() {
     const db = await new Dexie('Usage');
-    db.version(1).stores(
-    {
+    db.version(1).stores({
         year: '++id, time.year, [domain+time.year]',
         month: '++id, time.month, [domain+time.month]',
         day: '++id, time.day, [domain+time.day]',
@@ -132,16 +113,13 @@ async function displayPopUp()
     const monthUsage = totalUsed(await db.month.where("time.month").equals(thisMonth).toArray());
     const previuosMonthUsage = totalUsed(await db.month.where("time.month").equals(previousMonth).toArray());
 
-    changeBasicBarGraph(
-    {
+    changeBasicBarGraph({
         id: "monthUsage",
         usage: monthUsage
-    },
-    {
+    }, {
         id: "monthAverage",
         usage: 0
-    },
-    {
+    }, {
         id: "monthBar",
         usage: previuosMonthUsage
     });
@@ -151,8 +129,7 @@ async function displayPopUp()
 
     // get average of last 5 days
     let days = [];
-    for (let i = 0; i < 28; i++)
-    {
+    for (let i = 0; i < 28; i++) {
         const dayDate = new Date();
         dayDate.setDate(date.getDate() - i)
         const year = dayDate.getFullYear().toString();
@@ -165,16 +142,13 @@ async function displayPopUp()
     const todatUsage = totalUsed(await db.day.where("time.day").equals(days[0]).toArray());
     const [dayAverage, dayMax] = await averageAndMaximumIntervals(days, "day", db.day);
 
-    changeBasicBarGraph(
-    {
+    changeBasicBarGraph({
         id: "dayUsage",
         usage: todatUsage
-    },
-    {
+    }, {
         id: "dayAverage",
         usage: ((dayAverage == todatUsage) ? 0 : dayAverage)
-    },
-    {
+    }, {
         id: "dayBar",
         usage: dayMax
     });

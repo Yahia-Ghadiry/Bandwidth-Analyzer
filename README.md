@@ -11,7 +11,9 @@ and the date is then formated into a string consisting of the: year, month, week
 
 I have decided to use 6 "tables" each for the interval so that it is much faster to pull up data for say one year by just looking at the year table than going through the hour table and summing all the values each time it is needed for access although this approach uses much more storage it saves on runtime in the long run. 
 
-then for the pop-up, it gets a record of the usage data for the month and displays it based on the per cent of usage of the higher; past or this month while in the day it gets the average of the previous 30 consecutive days and displays it based on a per cent of highest daily usage one as the 100.
+then for the pop-up, it gets a record of the usage data for the month and displays it based on the per cent of usage of the higher; past or this month while in the day it gets the average of the previous 30 consecutive days and displays it based on a per cent of highest daily usage one as the 100 and there is a button to open a more detailed tab.
+
+In the detailed tab it displays usage categorized by top 3 domains or just shows Total usage in a given time interval.
 
 Important remarks;
-although most "tables", indexes aren't used this is because it is the foundation for the next improvement to the addon that displays usage categorized by domain or just shows uploaded and downloaded usage in a given time interval.
+I have since add a simple display for how it should look but it needs furthere coding but i thinks this is enough for this project as term finals approach

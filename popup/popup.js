@@ -7,8 +7,8 @@ const intervals = ["year", "month", "week_day", "day", "hour"];
 
 // Retruns total usage for givin records  
 function totalUsed(records)
-{   
-    if(!records)
+{
+    if (!records)
     {
         return 0;
     }
@@ -21,12 +21,14 @@ function totalUsed(records)
     return total;
 }
 
-function toTwodigits(n){
-    return n > 9 ? "" + n: "0" + n;
+// Turns integer into a 2 charchter string 
+function toTwodigits(n)
+{
+    return n > 9 ? "" + n : "0" + n;
 }
 
 // Converts number of bytes to number of KB, MB, etc ..  accordingly
-function formateBytes(bytes)
+function formatBytes(bytes)
 {
     const units = ["B", "KB", "MB", "GB", "TB", "PB"]
     let unitIndex = 0;
@@ -35,12 +37,13 @@ function formateBytes(bytes)
         bytes /= 1024;
         unitIndex++;
     }
-    return [bytes.toPrecision(4).toString() + units[unitIndex], bytes, unitIndex];
+    const formatted = (bytes == 0) ? 0 : bytes.toPrecision(4).toString() + " " + units[unitIndex];
+    return [formatted, bytes, unitIndex];
 }
 
 // does all calculations neccsary for basic bar graph 
 function changeBasicBarGraph(totalUsage, averageUsage, maxUsage)
-{   
+{
 
     // Make's sure not to exceed 100%
     if (maxUsage.usage < totalUsage.usage || maxUsage.usage < averageUsage.usage)
@@ -54,11 +57,11 @@ function changeBasicBarGraph(totalUsage, averageUsage, maxUsage)
     // subtract padding
     const barWidth = maxUsage.element.offsetWidth - 16;
 
-    const placeholder = formateBytes(totalUsage.usage)[0];
+    const placeholder = formatBytes(totalUsage.usage)[0];
     totalUsage.element.innerHTML = placeholder;
 
     totalUsage.element.style.width = ((totalUsage.usage / maxUsage.usage) * barWidth).toString() + "px";
-    
+
     if (averageUsage.usage == 0)
     {
         averageUsage.element.style.display = "none";
@@ -77,7 +80,7 @@ async function averageAndMaximumIntervals(intervals, table_name, table)
     let currentsum = 0;
     let maximum = 0;
     let summed = 0;
-    for(let i = 0; i < intervals.length ; i++)
+    for (let i = 0; i < intervals.length; i++)
     {
         const getrecoreds = await table.where("time." + table_name).equals(intervals[i]).toArray();
         if (!getrecoreds[0])
@@ -91,7 +94,7 @@ async function averageAndMaximumIntervals(intervals, table_name, table)
             maximum = total;
         }
         summed += 1;
-        
+
     }
     return [currentsum / (summed == 0 ? 1 : summed), maximum];
 
@@ -99,11 +102,13 @@ async function averageAndMaximumIntervals(intervals, table_name, table)
 
 document.getElementById("show_detailed").onclick = () =>
 {
-    browser.tabs.create({url: "/detailed/detailed.html"});
+    browser.tabs.create(
+    {
+        url: "/detailed/detailed.html"
+    });
 };
 
 // gets all data neccsary for the popupbars
-// future TODO: add a way to change languge
 async function displayPopUp()
 {
     var db = await new Dexie('Usage');
@@ -119,11 +124,11 @@ async function displayPopUp()
     const date = new Date();
 
     // Month bar
-    const thisMonth = date.getFullYear().toString() + toTwodigits(date.getMonth()).toString();
+    const thisMonth = date.getFullYear().toString() + toTwodigits(date.getMonth());
     // Previous month as the maximum
     const previouseMonthdate = new Date();
     previouseMonthdate.setMonth(date.getMonth() - 1);
-    const previousMonth = previouseMonthdate.getFullYear().toString() + toTwodigits(previouseMonthdate.getMonth()).toString();
+    const previousMonth = previouseMonthdate.getFullYear().toString() + toTwodigits(previouseMonthdate.getMonth());
 
     const monthUsage = totalUsed(await db.month.where("time.month").equals(thisMonth).toArray());
     const previuosMonthUsage = totalUsed(await db.month.where("time.month").equals(previousMonth).toArray());
@@ -141,7 +146,6 @@ async function displayPopUp()
         id: "monthBar",
         usage: previuosMonthUsage
     });
-    
 
 
     // Day bar
@@ -153,14 +157,14 @@ async function displayPopUp()
         const dayDate = new Date();
         dayDate.setDate(date.getDate() - i)
         const year = dayDate.getFullYear().toString();
-        const month = toTwodigits(dayDate.getMonth()).toString();
+        const month = toTwodigits(dayDate.getMonth());
         const week_day = dayDate.getDay().toString();
-        const day = toTwodigits(dayDate.getDate()).toString();
+        const day = toTwodigits(dayDate.getDate());
         days[i] = year + month + week_day + day;
     }
 
     const todatUsage = totalUsed(await db.day.where("time.day").equals(days[0]).toArray());
-    const [dayAverage, dayMax] =  await averageAndMaximumIntervals(days, "day", db.day);
+    const [dayAverage, dayMax] = await averageAndMaximumIntervals(days, "day", db.day);
 
     // const  dayMax = 5*1024*1024;
     changeBasicBarGraph(
@@ -175,6 +179,6 @@ async function displayPopUp()
     {
         id: "dayBar",
         usage: dayMax
-        });
+    });
 }
 displayPopUp();

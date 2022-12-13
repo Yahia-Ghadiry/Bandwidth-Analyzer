@@ -1,4 +1,4 @@
-function formateBytes(bytes)
+function formatBytes(bytes)
 {
     const units = ["B", "KB", "MB", "GB", "TB", "PB"]
     let unitIndex = 0;
@@ -7,66 +7,167 @@ function formateBytes(bytes)
         bytes /= 1024;
         unitIndex++;
     }
-    return [bytes.toPrecision(4).toString() + units[unitIndex], bytes, unitIndex];
+    const formatted = (bytes == 0) ? 0 : bytes.toPrecision(4).toString() + " " + units[unitIndex];
+    return [formatted, bytes, unitIndex];
 }
 
-function toTwodigits(n){
-    return n > 9 ? "" + n: "0" + n;
+// Turns integer into a 2 charchter string 
+function toTwodigits(n)
+{
+    return n > 9 ? "" + n : "0" + n;
 }
-// TODO: fix sorce map stuff
-// TODO: make all reused function in same place 
+// Calculates total value of each day
 function totalUsed(records)
-{   
-    if(!records)
+{
+    let values = [];
+    for (let i = 0; i < records.length; i++)
     {
-        return 0;
+        if (!records[i])
+        {
+            values[i] = 0;
+
+        }
+        else
+        {
+            let total = 0;
+            records[i].forEach(record =>
+            {
+                total += record.request_size;
+                total += record.response_size;
+            });
+            values[i] = total;
+        }
     }
-    let total = 0;
-    records.forEach(record =>
+    return values.reverse()
+}
+// returns values and secondary labels for top3
+function depthUsed(records)
+{
+    let domains = {};
+    // Summs all 
+    for (let i = 0; i < records.length; i++)
     {
-        total += record.request_size;
-        total += record.response_size;
+        for (let j = 0; j < records[i].length; j++)
+        {
+            if (records[i][j])
+            {
+                let total = records[i][j].request_size + records[i][j].response_size;
+                if (!domains[records[i][j].domain])
+                {
+                    domains[records[i][j].domain] = total;
+                }
+                else
+                {
+                    domains[records[i][j].domain] += records[i][j].request_size + records[i][j].response_size;
+                }
+            }
+        }
+    }
+
+    // Sorts and findsd top 3  
+    let top3 = Object.keys(domains).map((key) =>
+    {
+        return [key, domains[key]];
     });
-    return total;
+
+    top3.sort((a, b) =>
+    {
+        return b[1] - a[1];
+    });
+
+    top3 = top3.slice(0, 3);
+    top3 = top3.map((item) =>
+    {
+        return item[0]
+    });
+    top3[3] = "other";
+    let values = [[], [], [], []];
+    for (let i = 0; i < records.length; i++)
+    {
+        let otherSum = 0;
+        let found1 = false;
+        let found2 = false;
+        let found3 = false;
+        for (let j = 0; j < records[i].length; j++)
+        {
+            let total = records[i][j].request_size + records[i][j].response_size;
+
+            if (records[i][j].domain == top3[0])
+            {
+                values[0][i] = total;
+                found1 = true;
+            }
+            else if (records[i][j].domain == top3[1])
+            {
+                values[1][i] = total;
+                found2 = true;
+
+            }
+            else if (records[i][j].domain == top3[2])
+            {
+                values[2][i] = total;
+                found3 = true;
+            }
+            else
+            {
+                otherSum += total;
+
+            }
+
+        }
+        values[3][i] = otherSum;
+        if (!found1)
+        {
+            values[0][i] = 0;
+        }
+        if (!found2)
+        {
+            values[1][i] = 0;
+        }
+        if (!found3)
+        {
+            values[2][i] = 0;
+        }
+    }
+    for (let i = 0; i < 4; i++)
+    {
+        values[i].reverse()
+    }
+    return [values, top3];
 }
 
 // Provids necisary intervals to use in graph
-function getIntervals(interval, n, start_date) 
+function getIntervals(interval, n, start_date)
 {
     let intervals = [];
     for (let i = 0; i < n; i++)
     {
-        const date = new Date();
-
-        switch(interval)
+        const date = new Date(start_date);
+        switch (interval)
         {
             case "year":
                 date.setFullYear(date.getFullYear() - i);
                 break;
-            
+
             case "month":
                 date.setMonth(date.getMonth() - i);
                 break;
-            
             case "day":
-                date.setDay(date.getDate() - i);
+                date.setDate(date.getDate() - i);
                 break;
-            
             case "hour":
                 date.setHours(date.getHours() - i);
-                break;
-            default:
                 break;
         }
 
 
         const year = date.getFullYear().toString();
-        const month = toTwodigits(date.getMonth()).toString();
+        const month = toTwodigits(date.getMonth());
         const week_day = date.getDay().toString();
-        const day = toTwodigits(date.getDate()).toString();
-        const hour = toTwodigits(date.getHours()).toString();
+        const day = toTwodigits(date.getDate());
+        const hour = toTwodigits(date.getHours());
 
-        switch(interval)
+        switch (interval)
         {
             case "year":
                 intervals[i] = year;
@@ -80,8 +181,6 @@ function getIntervals(interval, n, start_date)
             case "hour":
                 intervals[i] = year + month + week_day + day + hour;
                 break;
-            default:
-                break;
         }
     }
 
@@ -89,50 +188,134 @@ function getIntervals(interval, n, start_date)
 }
 
 // Gets data from store with n intervals 
-async function getValues(table, table_name, intervals, type)
+async function getRecords(table, table_name, intervals)
 {
-    let values = [];    
+    let records = [];
 
     for (let i = 0; i < intervals.length; i++)
     {
         const getrecoreds = await table.where("time." + table_name).equals(intervals[i]).toArray();
         if (!getrecoreds[0])
         {
-            values[i] = 0;
-        }
-        if (type == "total")
-        {
-            values[i] = totalUsed(getrecoreds);
+            records[i] = 0;
         }
         else
         {
-            // TODO:
-        }        
+            records[i] = getrecoreds;
+        }
     }
 
-    return values;
+    return records;
+}
+
+function getValuesAndSecLabels(records, type)
+{
+    if (type == "total")
+    {
+        return [totalUsed(records), NaN];
+    }
+    else(type == "depth")
+    {
+
+        return depthUsed(records);
+    }
 }
 
 // Provides good labiling for graph
-function getLabels()
-{
-    // TODO: 
+function getLabels(format, intervals)
+{   
+    const n = intervals.length;
+    let labels = [];
+    const months = ["January","February","March","April","May","June","July",
+    "August","September","October","November","December"];
+
     const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thurday', 'Friday', 'Saturday'];
-    return weekDays;
+    const hours = Array.from({length: 24}, (_, i) => i + ":00 - " + (i +1) + ":00" );
+    for (let i = 0; i < n; i++)
+    {
+        switch (format)
+        {
+            case "year":
+                labels[i] = intervals[i].slice(0, 4);
+                break;
+
+            case "month":
+                labels[i] = months[parseInt(intervals[i].slice(4, 6))];
+                break;
+
+            case "week_day":
+                labels[i] = weekDays[parseInt(intervals[i].slice(6, 7))];
+                break;
+
+            case "day":
+                labels[i] = parseInt(intervals[i].slice(7, 9));
+               break;
+
+            case "hour":
+                labels[i] = hours[parseInt(intervals[i].slice(9))];
+                break;
+        }
+    }
+    return labels.reverse();
 }
 
-async function geLabelsAndValues(table, table_name, n, type = "total", start_date = "")
-{   
-    // TODO: add a a way to change start date
-    const intervals  = getIntervals(table_name, n, start_date);
-    const values = await getValues(table, table_name, intervals, type);
-    const labels = getLabels(table_name, n, start_date); 
-    return [values, labels];
+// Returns data for chart
+async function geChartData(table, format, n, type = "total", start_date = new Date())
+{
+    const table_name = (format == "week_day") ? "day": format;
+    const intervals = getIntervals(table_name, n, start_date);
+    const records = await getRecords(table, table_name, intervals);
+    const [values, secLabels] = getValuesAndSecLabels(records, type)
+    const labels = getLabels(format, intervals);
+    let data;
+    if (type == "depth")
+    {
+
+        data = {
+            labels: labels,
+            datasets: [
+            {
+                label: secLabels[3],
+                data: values[3],
+                borderWidth: 1
+            },
+            {
+                label: secLabels[2],
+                data: values[2],
+                borderWidth: 1
+            },
+            {
+                label: secLabels[1],
+                data: values[1],
+                borderWidth: 1
+            },
+            {
+                label: secLabels[0],
+                data: values[0],
+                borderWidth: 1
+            }]
+        };
+    }
+    else
+    {
+        data = {
+            labels: labels,
+            datasets: [
+            {
+                label: 'Total Usage',
+                data: values,
+                borderWidth: 1
+            }]
+        };
+    }
+    
+    
+    return data;
 }
 
 async function createGraph()
 {
-    var db = await new Dexie('Usage');
+    const db = await new Dexie('Usage');
     db.version(1).stores(
     {
         year: '++id, time.year, [domain+time.year]',
@@ -141,41 +324,43 @@ async function createGraph()
         day: '++id, time.day, [domain+time.day]',
         hour: '++id, time.hour, [domain+time.hour]'
     });
-    
-    // TODO: make labels better 
-    const [labels, values] = await geLabelsAndValues(db.day, "day", 7);
 
-    let  data = 
-    {
-        labels: labels,
-        datasets: 
-        [{
-            label: 'Usage',
-            data: values,
-            borderWidth: 1
-        }]
-    };
+
+    let start_date = new Date();
+    // fix more than one in week day
+    const data = await geChartData(db.day, "day", 9, "depth", start_date);
+
 
     const ctx = document.getElementById('myChart');
 
-    // TODO: add a way to make it clickbale
-    // TODO: add a way to make it in terms of KB MB GB not in bytes
-    // TODO: make numbers apear on graph
-    // TODO: add average
-    const stackedBar = new Chart(ctx, 
+
+    const stackedBar = new Chart(ctx,
     {
         type: 'bar',
         data: data,
-        options: {
-            scales: {
-                x: {
+        options:
+        {
+            scales:
+            {
+                x:
+                {
                     stacked: true
                 },
-                y: {
-                    stacked: true
+                y:
+                {
+                    stacked: true,
+                    ticks:
+                    {
+                        // Show size in KB MB GB TB instead of Bytes
+                        callback: (value, index, ticks) =>
+                        {
+                            return formatBytes(value)[0];
+                        }
+
+                    }
                 }
             }
         }
     });
-} 
+}
 createGraph();

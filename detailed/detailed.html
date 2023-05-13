@@ -9,7 +9,36 @@
         <title>Data Usage Analizer (Detailed)</title>
     </head>
     <body>
-        <div>
+        <form id="formatForm">
+            <select id="typeSelector">
+                <option value="">Choose Type</option>
+                <option value="detailed">Detailed</option>
+                <option value="total">Total</option>
+                <option value="updown" hidden>Up/Down</option>              <!-- TODO -->
+              </select>
+              <select id="frequancySelector">
+                <option value="">Choose Frequancy</option>
+                <option value="year">Year</option>
+                <option value="month">Month</option>
+                <option value="week" hidden>Week</option>              <!-- TODO -->
+                <option value="day">Day</option>
+                <option value="hour">Hour</option>
+              </select>
+              <!-- TODO start -->
+              <select id="labelSelector" hidden>
+                <option value="">Choose Format</option>
+              </select>
+              <select id="startSelector" hidden>
+                <option value="">Choose Beginning</option>
+              </select>
+              <select id="endSelector" hidden>
+                <option value="">Choose Ending</option>
+              </select>
+              <!-- TODO end -->
+
+            <button id="applyFormat">Apply Format</button>
+        </form>
+        <div class="chart-container">
             <canvas id="myChart"></canvas>
         </div>        
         <script src="/src/chart.js"></script>

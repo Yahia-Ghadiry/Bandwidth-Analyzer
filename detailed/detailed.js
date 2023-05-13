@@ -1,11 +1,11 @@
 function formatBytes(bytes) {
     const units = ["B", "KB", "MB", "GB", "TB", "PB"]
     let unitIndex = 0;
-    while (bytes >= 1024) {
-        bytes /= 1024;
+    while (bytes >= 1000) {
+        bytes /= 1000;
         unitIndex++;
     }
-    const formatted = (bytes == 0) ? 0 : bytes.toPrecision(4).toString() + " " + units[unitIndex];
+    const formatted = (bytes == 0) ? 0 : bytes.toPrecision(3).toString() + " " + units[unitIndex];
     return [formatted, bytes, unitIndex];
 }
 
@@ -253,7 +253,8 @@ async function getChartData(table, format, n, type = "total", start_date = new D
                 }
             ]
         };
-    } else {
+    }  
+    else if (type == "total")  {
         data = {
             labels: labels,
             datasets: [{
@@ -268,7 +269,8 @@ async function getChartData(table, format, n, type = "total", start_date = new D
     return data;
 }
 
-async function createGraph() {
+async function createGraph() 
+{
     const db = await new Dexie('Usage');
     db.version(1).stores({
         year: '++id, time.year, [domain+time.year]',
@@ -278,8 +280,35 @@ async function createGraph() {
     });
 
     let start_date = new Date();
-
-    const data = await getChartData(db.hour, "hour", 9, "detailed", start_date);
+    const tables = [db.year, db.month, db.day, db.hour];
+    const type = localStorage.getItem('type');
+    const frequancy = localStorage.getItem('frequancy');
+    let data;
+    // TODO: add week and week day 12 and 24 hours
+    if (frequancy == 'year')
+    {
+        data = await getChartData(tables[0], frequancy, 3, type, start_date);
+    }
+    else if (frequancy == 'month')
+    {
+        data = await getChartData(tables[1], frequancy, 12, type, start_date);
+    }
+    else if (frequancy == 'day')
+    {
+        data = await getChartData(tables[2], frequancy, start_date.getDate(), type, start_date);
+        console.log('frequancy');
+    }
+    else if (frequancy == 'hour')
+    {
+        data = await getChartData(tables[3], frequancy, 12, type, start_date);
+        console.log('frequancy');
+    }
+    else
+    {
+        data = await getChartData(db.hour, "hour", 9, "detailed", start_date);
+        console.log('NO');
+    }
+    // TODO: add end date
 
     const ctx = document.getElementById('myChart');
 
@@ -305,4 +334,21 @@ async function createGraph() {
         }
     });
 }
+
+const applyFormat = document.getElementById('applyFormat');
+const typeSelector = document.getElementById('typeSelector');
+const frequancySelector = document.getElementById('frequancySelector');
+const labelSelector = document.getElementById('labelSelector');
+const startSelector = document.getElementById('startSelector');
+const endSelector = document.getElementById('endSelector');
+applyFormat.onclick = () =>
+{
+    if(typeSelector && frequancySelector)
+    {
+        localStorage.setItem('type', typeSelector.value);
+        localStorage.setItem('frequancy', frequancySelector.value);
+        location.reload();
+    }
+} 
+
 createGraph();

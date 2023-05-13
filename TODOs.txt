@@ -13,3 +13,7 @@ Future :
     TODO: make labels better 
     TODO: make houver value in MB
     TODO: make start_date chossable
+    TODO: fix telgram upload/download not counted 
+    TODO: add upload download format
+    TOdo: add more format selectors
+    

@@ -3,3 +3,17 @@ html, body
     margin: 0;
     padding: 0;
 }
+div.chart-container
+{
+    position: relative;
+    margin-top: 33px;
+    height: calc(100vh - 33px); 
+    width: 100vw;
+}
+#formatForm
+{
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 2;
+}

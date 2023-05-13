@@ -3,17 +3,17 @@ Future :
     TODO: make all reused function in same place 
     TODO: fix icon and make new one better
     TODO: add a way to change languge
-    TODO: make option for diffrent graph types
     TODO: make hour format in 24 and 12 
     TODO: make a graph with upload and download
     TODO: add a way to make it clickbale
-    TODO: make numbers apear on graph
     TODO: add average to graph
     TODO: Make graph better convey year in a month, month in a week , etc..
-    TODO: make labels better 
     TODO: make houver value in MB
-    TODO: make start_date chossable
     TODO: fix telgram upload/download not counted 
+
+    version 1.3
     TODO: add upload download format
-    TOdo: add more format selectors
-    
+    TOdo: add more format selectorst
+    TODO: add error mesagies with wrong selectors
+    TODO: better style selectors
+    TODO: make start_date chossable

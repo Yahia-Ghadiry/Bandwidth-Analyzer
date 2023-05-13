@@ -5,7 +5,7 @@ function formatBytes(bytes) {
         bytes /= 1000;
         unitIndex++;
     }
-    const formatted = (bytes == 0) ? 0 : bytes.toPrecision(3).toString() + " " + units[unitIndex];
+    const formatted = (bytes == 0) ? 0 : (bytes.toPrecision(3) / 1).toString() + " " + units[unitIndex];
     return [formatted, bytes, unitIndex];
 }
 
@@ -281,7 +281,7 @@ async function createGraph()
 
     let start_date = new Date();
     const tables = [db.year, db.month, db.day, db.hour];
-    const type = localStorage.getItem('type');
+    const type = localStorage.getItem('type') ? localStorage.getItem('type') :'detailed';
     const frequancy = localStorage.getItem('frequancy');
     let data;
     // TODO: add week and week day 12 and 24 hours
@@ -296,17 +296,14 @@ async function createGraph()
     else if (frequancy == 'day')
     {
         data = await getChartData(tables[2], frequancy, start_date.getDate(), type, start_date);
-        console.log('frequancy');
     }
     else if (frequancy == 'hour')
     {
         data = await getChartData(tables[3], frequancy, 12, type, start_date);
-        console.log('frequancy');
     }
     else
     {
         data = await getChartData(db.hour, "hour", 9, "detailed", start_date);
-        console.log('NO');
     }
     // TODO: add end date
 
@@ -343,8 +340,9 @@ const startSelector = document.getElementById('startSelector');
 const endSelector = document.getElementById('endSelector');
 applyFormat.onclick = () =>
 {
-    if(typeSelector && frequancySelector)
+    if(typeSelector.value && frequancySelector.value)
     {
+        console.log('help');
         localStorage.setItem('type', typeSelector.value);
         localStorage.setItem('frequancy', frequancySelector.value);
         location.reload();

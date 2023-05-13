@@ -27,11 +27,11 @@ function toTwodigits(n) {
 function formatBytes(bytes) {
     const units = ["B", "KB", "MB", "GB", "TB", "PB"]
     let unitIndex = 0;
-    while (bytes >= 1024) {
-        bytes /= 1024;
+    while (bytes >= 1000) {
+        bytes /= 1000;
         unitIndex++;
     }
-    const formatted = (bytes == 0) ? 0 : bytes.toPrecision(4).toString() + " " + units[unitIndex];
+    const formatted = (bytes == 0) ? 0 : (bytes.toPrecision(3) / 1).toString() + " " + units[unitIndex];
     return [formatted, bytes, unitIndex];
 }
 

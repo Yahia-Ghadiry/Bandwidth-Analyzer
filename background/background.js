@@ -1,4 +1,13 @@
 const intervals = ["year", "month", "day", "hour"];
+var db = new Dexie('Usage');
+db.version(1).stores({
+    year: '++id, time.year, [domain+time.year]',
+    month: '++id, time.month, [domain+time.month]',
+    day: '++id, time.day, [domain+time.day]',
+    hour: '++id, time.hour, [domain+time.hour]'
+});
+var tables = [db.year, db.month, db.day, db.hour];
+
 // Format of date YYYYMMWDDHH
 // recursive function so all usage from a frames of a website will be added to same url not to the frame's
 function findOrginOfFrame(requestDetails) {
@@ -45,38 +54,27 @@ function format(requestDetails) {
 
 
 // Stores all trafic/usage
-async function storeData(requestDetails) {
-    const db = new Dexie('Usage');
-    db.version(1).stores({
-        year: '++id, time.year, [domain+time.year]',
-        month: '++id, time.month, [domain+time.month]',
-        day: '++id, time.day, [domain+time.day]',
-        hour: '++id, time.hour, [domain+time.hour]'
-    });
-
-    const tables = [db.year, db.month, db.day, db.hour];
+function storeData(requestDetails) {
 
     if (requestDetails.requestSize != 0 || requestDetails.responseSize != 0) {
         const formatted = format(requestDetails);
-        tables.forEach(async (table, index) => {
+        tables.forEach((table, index) => {
             // Checks if recored of same domain near same time (5 min) is there if so updates it and doesn't make a new one 
-            const checkifexist = await table.where(["domain", "time." + intervals[index]]).equals([formatted.domain,
+            db.open().then(() =>
+            {
+             return  table.where(["domain", "time." + intervals[index]]).equals([formatted.domain,
                 formatted["time"][intervals[index]]]).first();
-            if (checkifexist) {
-                checkifexist.request_size += formatted["request_size"];
-                checkifexist.response_size += formatted["response_size"];
-                await table.put(checkifexist, checkifexist.id);
-            } else {
-                await table.add(formatted);
-            }
+             }).then((checkifexist) =>{
+                if (checkifexist) {
+                    checkifexist.request_size += formatted["request_size"];
+                    checkifexist.response_size += formatted["response_size"];
+                    return table.put(checkifexist, checkifexist.id);
+                } else {
+                    return table.add(formatted);
+                }});
+            
         });
     }
 }
 
-browser.webRequest.onCompleted.addListener(
-    (requestDetails) => {
-        storeData(requestDetails).then();
-    }, {
-        urls: ["<all_urls>"]
-    }, ["responseHeaders"]
-);
+browser.webRequest.onCompleted.addListener(storeData, {urls: ["<all_urls>"]}, ["responseHeaders"]);

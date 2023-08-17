@@ -29,8 +29,35 @@ function totalUsage(records) {
             values[i] = total;
         }
     }
-    return values.reverse()
+    return values.reverse();
 }
+// Returns upload and downlaod usage also theere apportapiate labels
+function updownUsage(records)
+{
+
+    let values = [[], []];
+    for (let i = 0; i < records.length; i++) {
+        if (!records[i]) {
+            values[0][i] = 0;
+            values[1][i] = 0;
+
+        } else {
+            let upload = 0, download = 0;
+            records[i].forEach(record => {
+                upload += record.request_size;
+                download += record.response_size;
+            });
+            values[0][i] = download;
+            values[1][i] = upload;
+        	
+		}
+    }
+	values[0].reverse();
+	values[1].reverse();
+
+    return [values, ["Download", "Upload"]];
+}	
+
 // returns values and secondary labels for top3
 function detailedUsage(records) {
     let domains = {};
@@ -174,11 +201,17 @@ async function getRecords(table, table_name, intervals) {
 
 function getValuesAndSecLabels(records, type) {
     if (type == "total") {
-        return [totalUsage(records), NaN];
-    } else if (type == "detailed") {
-
+        return [[totalUsage(records)], ["Total Usage"]];
+    } 
+	else if (type == "detailed") 
+	{
         return detailedUsage(records);
     }
+	else if (type == "updown")
+	{
+		return updownUsage(records);
+	}
+
 }
 
 // Provides good labiling for graph
@@ -218,16 +251,46 @@ function getLabels(format, intervals) {
     }
     return labels.reverse();
 }
+async function getChartDataRunner(tables, frequancy, type, start_date)
+{
+	let data;
+    // TODO: add week and week day 12 and 24 hours
+    if (frequancy == 'year')
+    {
+        data = await getChartData(tables[0], frequancy, 3, type, start_date);
+    }
+    else if (frequancy == 'month')
+    {
+        data = await getChartData(tables[1], frequancy, 12, type, start_date);
+    }
+    else if (frequancy == 'day')
+    {
+        data = await getChartData(tables[2], frequancy, start_date.getDate(), type, start_date);
+    }
+    else if (frequancy == 'hour')
+    {
+        data = await getChartData(tables[3], frequancy, 12, type, start_date);
+    }
+    else
+    {
+        data = await getChartData(tables[3], "hour", 9, "detailed", start_date);
+    }
+    // TODO: add end date
+	return data;
+}
 
 // Returns data for chart
 async function getChartData(table, format, n, type = "total", start_date = new Date()) {
-    const table_name = (format == "week_day") ? "day" : format;
+
+    
+	const table_name = (format == "week_day") ? "day" : format;
     const intervals = getIntervals(table_name, n, start_date);
     const records = await getRecords(table, table_name, intervals);
     const [values, secLabels] = getValuesAndSecLabels(records, type)
     const labels = getLabels(format, intervals);
     let data;
-    if (type == "detailed") {
+    if (type == "detailed") 
+	{
 
         data = {
             labels: labels,
@@ -254,18 +317,40 @@ async function getChartData(table, format, n, type = "total", start_date = new D
             ]
         };
     }  
-    else if (type == "total")  {
+    else if (type == "updown")
+	{
+		data = {
+            labels: labels,
+            datasets: [{
+                    label: secLabels[1],
+                    data: values[1],
+                    borderWidth: 1,
+					stack: "Stack 0"
+                },
+                {
+                    label: secLabels[0], 
+                    data: values[0],
+                    borderWidth: 1,
+					stack: "Stack 1"
+                }
+            ]
+        };
+	
+	}
+	else if (type == "total")  
+	{
         data = {
             labels: labels,
             datasets: [{
-                label: 'Total Usage',
-                data: values,
+                label: secLabels[0],
+                data: values[0],
                 borderWidth: 1
             }]
         };
     }
 
 
+	console.log(data);
     return data;
 }
 
@@ -283,31 +368,8 @@ async function createGraph()
     const tables = [db.year, db.month, db.day, db.hour];
     const type = localStorage.getItem('type') ? localStorage.getItem('type') :'detailed';
     const frequancy = localStorage.getItem('frequancy');
-    let data;
-    // TODO: add week and week day 12 and 24 hours
-    if (frequancy == 'year')
-    {
-        data = await getChartData(tables[0], frequancy, 3, type, start_date);
-    }
-    else if (frequancy == 'month')
-    {
-        data = await getChartData(tables[1], frequancy, 12, type, start_date);
-    }
-    else if (frequancy == 'day')
-    {
-        data = await getChartData(tables[2], frequancy, start_date.getDate(), type, start_date);
-    }
-    else if (frequancy == 'hour')
-    {
-        data = await getChartData(tables[3], frequancy, 12, type, start_date);
-    }
-    else
-    {
-        data = await getChartData(db.hour, "hour", 9, "detailed", start_date);
-    }
-    // TODO: add end date
-
-    const ctx = document.getElementById('myChart');
+    let data = await getChartDataRunner(tables, frequancy, type, start_date);
+	const ctx = document.getElementById('myChart');
 
     const stackedBar = new Chart(ctx, {
         type: 'bar',

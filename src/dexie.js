@@ -5186,4 +5186,4 @@
     return Dexie$1;
 
 }));
-//# sourceMappingURL=/src/dexie.js.map
+//# sourceMappingURL=dexie.js.map

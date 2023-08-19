@@ -2,7 +2,7 @@
 
   "manifest_version": 2,
   "name": "Bandwidth Analizer",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "homepage_url":"https://noneYet.com",
   "description": "A tool that helps you analyze used data to help you not exceed your monthly data cap",
 

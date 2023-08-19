@@ -350,7 +350,6 @@ async function getChartData(table, format, n, type = "total", start_date = new D
     }
 
 
-	console.log(data);
     return data;
 }
 
@@ -404,7 +403,6 @@ applyFormat.onclick = () =>
 {
     if(typeSelector.value && frequancySelector.value)
     {
-        console.log('help');
         localStorage.setItem('type', typeSelector.value);
         localStorage.setItem('frequancy', frequancySelector.value);
         location.reload();

@@ -9,17 +9,27 @@ db.version(1).stores({
 var tables = [db.year, db.month, db.day, db.hour];
 
 // Format of date YYYYMMWDDHH
-// recursive function so all usage from a frames of a website will be added to same url not to the frame's
-function findOrginOfFrame(requestDetails) {
-    if (requestDetails.frameId) {
-        return findOrginOfFrame(requestDetails.frameAncestors[0]);
-    } else {
-        if (requestDetails["originUrl"]) {
-            return (new URL(requestDetails["originUrl"])).hostname;
-        } else {
-            return (new URL(requestDetails["url"])).hostname;
-        }
-    }
+
+// given requestDetails returns the source of request hostname 
+function getHostname(requestDetails) {
+	let url = typeof requestDetails.documentUrl !== 'undefined' ? requestDetails.documentUrl :  typeof requestDetails.originUrl !== 'undefined' ? requestDetails.originUrl: requestDetails.url;
+	let hostname;
+	if (url.indexOf("://") > -1)
+	{
+	    hostname = url.split('/')[2];
+	}
+	else
+	{
+	    hostname = url.split('/')[0];
+	}
+	// find & remove port number
+	hostname = hostname.split(':')[0];
+
+	// find & remove "?"
+	hostname = hostname.split('?')[0];
+	console.log(hostname);
+    return hostname;
+
 }
 
 // Turns integer into a 2 charchter string 
@@ -33,7 +43,7 @@ function format(requestDetails) {
     formattedRecord["request_size"] = requestDetails["requestSize"];
     formattedRecord["response_size"] = requestDetails["responseSize"];
 
-    formattedRecord["domain"] = findOrginOfFrame(requestDetails)
+    formattedRecord["domain"] = getHostname(requestDetails)
     // Formating the date so it's easily searchable
     formattedRecord["time"] = {};
     const date = new Date(requestDetails["timeStamp"]);

@@ -27,7 +27,6 @@ function getHostname(requestDetails) {
 
 	// find & remove "?"
 	hostname = hostname.split('?')[0];
-	console.log(hostname);
     return hostname;
 
 }
@@ -85,6 +84,10 @@ function storeData(requestDetails) {
             
         });
     }
+	else
+	{
+		console.log(getHostname(requestDetails), requestDetails);
+	}
 }
 
-browser.webRequest.onCompleted.addListener(storeData, {urls: ["<all_urls>"]}, ["responseHeaders"]);
+browser.webRequest.onCompleted.addListener(storeData, {urls: ["<all_urls>"]});
